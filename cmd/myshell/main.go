@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+func handleEchoCommand(args []string) {
+	fmt.Println(strings.Join(args, " "))
+}
+
 func handleExitCommand(args []string) {
 	var err error
 	statusCode := 0
@@ -34,10 +38,14 @@ func main() {
 		trimmedInput := strings.TrimSpace(rawInput)
 
 		input := strings.Split(trimmedInput, " ")
+		command := input[0]
+		args := input[1:]
 
-		switch command := input[0]; command {
+		switch command {
+		case "echo":
+			handleEchoCommand(args)
 		case "exit":
-			handleExitCommand(input[1:])
+			handleExitCommand(args)
 		default:
 			output := fmt.Sprintf("%s: command not found\n", command)
 			fmt.Fprint(os.Stdout, output)
