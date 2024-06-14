@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 )
@@ -23,6 +24,26 @@ func handleExitCommand(args []string) {
 		}
 	}
 	os.Exit(statusCode)
+}
+
+func invokeShellCommand(command string, args ...string) (output string, err error) {
+	envPath := os.Getenv("PATH")
+	envPaths := strings.Split(envPath, ":")
+
+	for _, path := range envPaths {
+		if _, err := os.Stat(path + "/" + command); err == nil {
+			cmd := exec.Command(command, args...)
+			var out strings.Builder
+			cmd.Stdout = &out
+			if err := cmd.Run(); err != nil {
+				return "", err
+			}
+
+			return out.String(), nil
+		}
+	}
+
+	return "", fmt.Errorf("%s: not found", command)
 }
 
 func handleTypeCommand(args []string) {
@@ -76,7 +97,12 @@ func main() {
 		case "type":
 			handleTypeCommand(args)
 		default:
-			output := fmt.Sprintf("%s: command not found\n", command)
+			output, err := invokeShellCommand(command, args...)
+			if err != nil {
+				fmt.Fprintln(os.Stdout, err)
+				break
+			}
+
 			fmt.Fprint(os.Stdout, output)
 		}
 	}
