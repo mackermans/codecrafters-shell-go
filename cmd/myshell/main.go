@@ -19,21 +19,37 @@ func handleExitCommand(args []string) {
 		statusCode, err = strconv.Atoi(args[0])
 		if err != nil {
 			fmt.Fprintln(os.Stdout, "failed to parse exit status code:", err)
-			statusCode = 1
+			statusCode = 128
 		}
 	}
 	os.Exit(statusCode)
 }
 
 func handleTypeCommand(args []string) {
+	if len(args) == 0 {
+		fmt.Fprintln(os.Stdout, "type: missing argument")
+		return
+	}
+
+	envPath := os.Getenv("PATH")
+	envPaths := strings.Split(envPath, ":")
+
 	shellBuiltinCommands := []string{"echo", "exit", "type"}
+	searchCommand := args[0]
 	for _, shellBuiltinCommand := range shellBuiltinCommands {
-		if len(args) > 0 && args[0] == shellBuiltinCommand {
-			fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", args[0])
+		if searchCommand == shellBuiltinCommand {
+			fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", searchCommand)
 			return
 		}
+
+		for _, path := range envPaths {
+			if _, err := os.Stat(path + "/" + searchCommand); err == nil {
+				fmt.Fprintf(os.Stdout, "%s is %s/%s\n", searchCommand, path, searchCommand)
+				return
+			}
+		}
 	}
-	fmt.Fprintf(os.Stdout, "%s: not found\n", args[0])
+	fmt.Fprintf(os.Stdout, "%s: not found\n", searchCommand)
 }
 
 func main() {
@@ -42,7 +58,7 @@ func main() {
 
 		rawInput, err := bufio.NewReader(os.Stdin).ReadString('\n')
 		if err != nil {
-			fmt.Println("failed to parse input:", err)
+			fmt.Fprintf(os.Stdout, "failed to parse input: %s\n", err)
 			break
 		}
 
