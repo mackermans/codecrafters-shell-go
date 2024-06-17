@@ -58,14 +58,15 @@ func handleTypeCommand(args []string) {
 			fmt.Fprintf(os.Stdout, "%s is a shell builtin\n", searchCommand)
 			return
 		}
+	}
 
-		for _, path := range envPaths {
-			if _, err := os.Stat(path + "/" + searchCommand); err == nil {
-				fmt.Fprintf(os.Stdout, "%s is %s/%s\n", searchCommand, path, searchCommand)
-				return
-			}
+	for _, path := range envPaths {
+		if _, err := os.Stat(path + "/" + searchCommand); err == nil {
+			fmt.Fprintf(os.Stdout, "%s is %s/%s\n", searchCommand, path, searchCommand)
+			return
 		}
 	}
+
 	fmt.Fprintf(os.Stdout, "%s: not found\n", searchCommand)
 }
 
