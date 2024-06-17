@@ -26,26 +26,6 @@ func handleExitCommand(args []string) {
 	os.Exit(statusCode)
 }
 
-func invokeShellCommand(command string, args ...string) (output string, err error) {
-	envPath := os.Getenv("PATH")
-	envPaths := strings.Split(envPath, ":")
-
-	for _, path := range envPaths {
-		if _, err := os.Stat(path + "/" + command); err == nil {
-			cmd := exec.Command(command, args...)
-			var out strings.Builder
-			cmd.Stdout = &out
-			if err := cmd.Run(); err != nil {
-				return "", err
-			}
-
-			return out.String(), nil
-		}
-	}
-
-	return "", fmt.Errorf("%s: not found", command)
-}
-
 func handleTypeCommand(args []string) {
 	if len(args) == 0 {
 		fmt.Fprintln(os.Stdout, "type: missing argument")
@@ -71,6 +51,26 @@ func handleTypeCommand(args []string) {
 		}
 	}
 	fmt.Fprintf(os.Stdout, "%s: not found\n", searchCommand)
+}
+
+func invokeShellCommand(command string, args ...string) (output string, err error) {
+	envPath := os.Getenv("PATH")
+	envPaths := strings.Split(envPath, ":")
+
+	for _, path := range envPaths {
+		if _, err := os.Stat(path + "/" + command); err == nil {
+			cmd := exec.Command(command, args...)
+			var out strings.Builder
+			cmd.Stdout = &out
+			if err := cmd.Run(); err != nil {
+				return "", err
+			}
+
+			return out.String(), nil
+		}
+	}
+
+	return "", fmt.Errorf("%s: not found", command)
 }
 
 func main() {
