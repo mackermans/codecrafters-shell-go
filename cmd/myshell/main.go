@@ -10,7 +10,8 @@ import (
 )
 
 func handleCdCommand(args []string) {
-	path := args[0]
+	path := strings.ReplaceAll(args[0], "~", os.Getenv("HOME"))
+
 	fileInfo, err := os.Stat(path)
 	if err != nil {
 		fmt.Fprintf(os.Stdout, "cd: %s: No such file or directory\n", path)
