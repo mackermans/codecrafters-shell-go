@@ -9,6 +9,22 @@ import (
 	"strings"
 )
 
+func handleCdCommand(args []string) {
+	path := args[0]
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		fmt.Fprintf(os.Stdout, "cd: The directory '%s' does not exist\n", path)
+		return
+	}
+
+	if !fileInfo.IsDir() {
+		fmt.Fprintf(os.Stdout, "cd: '%s' is not a directory\n", path)
+		return
+	}
+
+	os.Chdir(path)
+}
+
 func handleEchoCommand(args []string) {
 	fmt.Fprintln(os.Stdout, strings.Join(args, " "))
 }
@@ -35,7 +51,7 @@ func handleTypeCommand(args []string) {
 	envPath := os.Getenv("PATH")
 	envPaths := strings.Split(envPath, ":")
 
-	shellBuiltinCommands := []string{"echo", "exit", "type"}
+	shellBuiltinCommands := []string{"cd", "echo", "exit", "type"}
 	searchCommand := args[0]
 	for _, shellBuiltinCommand := range shellBuiltinCommands {
 		if searchCommand == shellBuiltinCommand {
@@ -90,6 +106,8 @@ func main() {
 		args := input[1:]
 
 		switch command {
+		case "cd":
+			handleCdCommand(args)
 		case "echo":
 			handleEchoCommand(args)
 		case "exit":
