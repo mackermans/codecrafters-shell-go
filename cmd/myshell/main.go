@@ -13,12 +13,12 @@ func handleCdCommand(args []string) {
 	path := args[0]
 	fileInfo, err := os.Stat(path)
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "cd: The directory '%s' does not exist\n", path)
+		fmt.Fprintf(os.Stdout, "cd: %s: No such file or directory\n", path)
 		return
 	}
 
 	if !fileInfo.IsDir() {
-		fmt.Fprintf(os.Stdout, "cd: '%s' is not a directory\n", path)
+		fmt.Fprintf(os.Stdout, "cd: %s: Not a directory\n", path)
 		return
 	}
 
